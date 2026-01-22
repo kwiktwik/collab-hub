@@ -1,63 +1,45 @@
 # CollabHub
 
-A collaborative project management tool inspired by Jira, Notion, and ClickUp. Features group-based access control, document management, secure credential storage, and file management.
+A collaborative project management platform with **organization-based** access control, secure credential storage, and file management.
 
 ## Features
 
-- **Multi-Project Management**: Create and manage multiple projects
-- **Group-Based Access Control**: Create groups, invite members, and share projects with different permission levels
-- **Documentation**: Create and organize documents within projects
-- **Secure Credentials**: Store API keys, passwords, and other sensitive data with encryption
-- **File Storage**: Upload and manage files with S3-compatible storage
-- **User Authentication**: Simple username-password based authentication
+### Organizations
+- **Multi-tenant**: Users can create multiple organizations and belong to multiple orgs
+- **Role-based Access**: Organization roles (Owner, Admin, Member)
+- **Invite System**: Invite users by email with secure token-based invitations
+- **Self-service**: Anyone can register and create organizations
+
+### JIRA-like Task Management
+- **Kanban Boards**: Full-featured boards for task management
+- **Sprints**: Plan work with time-boxed sprints (planning, active, completed)
+- **Customizable Columns**: Default columns (Backlog, To Do, In Progress, Done, Deployed) plus custom
+- **Multi-Group Access**: Share boards with multiple groups (groups don't see each other)
+- **Task Types**: Story, Task, Bug, Epic, Subtask
+- **Priorities**: Highest to Lowest with visual indicators
+- **Labels**: Custom color-coded labels for categorization
+- **Story Points**: Estimate work with story points
+- **Comments**: Discuss tasks with team members
+- **Drag & Drop**: Move tasks between columns easily
+- **WIP Limits**: Set work-in-progress limits per column
+
+### Team Collaboration
+- **Groups**: Create teams within organizations with admin/member roles
+- **Projects**: Create projects and share with multiple groups
+- **Permission Levels**: read/write/admin per group
+- **Real-time Notifications**: Task assignments, invites, updates
+- **Documents**: Create and organize documents within projects
+- **Secure Credentials**: Store API keys, passwords with AES-256 encryption
+- **File Management**: Upload and organize files with folder support
 
 ## Tech Stack
 
-### Frontend
-- React 18 with TypeScript
-- Webpack for bundling
-- React Router for navigation
-- Axios for API calls
-- Lucide React for icons
-
-### Backend
-- Express.js with TypeScript
-- SQLite with Drizzle ORM
-- S3-compatible storage (local storage faker for development)
-- bcrypt for password hashing
-- AES-256 encryption for credentials
-
-## Project Structure
-
-```
-collab-hub/
-├── client/                  # React frontend
-│   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── context/        # React contexts (Auth)
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── pages/          # Page components
-│   │   ├── services/       # API services
-│   │   ├── styles/         # CSS styles
-│   │   ├── types/          # TypeScript types
-│   │   ├── App.tsx         # Main app component
-│   │   └── index.tsx       # Entry point
-│   ├── public/             # Static assets
-│   ├── webpack.config.js   # Webpack configuration
-│   └── package.json
-├── server/                  # Express backend
-│   ├── src/
-│   │   ├── config/         # Configuration
-│   │   ├── db/             # Database schema & migrations
-│   │   ├── middleware/     # Express middleware
-│   │   ├── routes/         # API routes
-│   │   ├── services/       # Business logic & storage
-│   │   ├── utils/          # Utility functions
-│   │   └── index.ts        # Server entry point
-│   ├── drizzle.config.ts   # Drizzle ORM config
-│   └── package.json
-└── README.md
-```
+- **Framework**: Next.js 14 (App Router)
+- **Database**: SQLite with Drizzle ORM
+- **Authentication**: iron-session
+- **Encryption**: AES-256-CBC for credentials
+- **Styling**: Glassmorphism CSS theme (no external framework)
+- **TypeScript**: Full type safety
 
 ## Getting Started
 
@@ -68,184 +50,232 @@ collab-hub/
 
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   cd zed-base
-   ```
+1. Clone the repository:
+```bash
+cd collab-hub
+```
 
-2. **Install server dependencies**
-   ```bash
-   cd server
-   npm install
-   ```
+2. Install dependencies:
+```bash
+npm install
+```
 
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
+3. Set up environment variables:
+```bash
+cp .env.example .env
+```
 
-4. **Initialize the database**
-   ```bash
-   npm run db:migrate
-   ```
+Edit `.env` and update:
+- `SESSION_SECRET`: A random 32+ character string
+- `ENCRYPTION_KEY`: Exactly 32 characters for AES-256
 
-5. **Start the server**
-   ```bash
-   npm run dev
-   ```
+4. Initialize the database:
+```bash
+npm run db:push
+```
 
-6. **Install client dependencies** (in a new terminal)
-   ```bash
-   cd client
-   npm install
-   ```
+5. Run the development server:
+```bash
+npm run dev
+```
 
-7. **Start the client**
-   ```bash
-   npm run dev
-   ```
+6. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-8. **Open your browser**
-   Navigate to http://localhost:3000
+7. Register your first account and create your first organization!
+
+## Organization-Based Access
+
+CollabHub uses an **organization-based** access model (like Slack, Discord, GitHub):
+
+### How It Works
+
+1. **Anyone can register** - No approval needed
+2. **Create organizations** - Each org is a separate workspace
+3. **Creator becomes owner** - Full admin access to their org
+4. **Invite members** - Owners and admins can invite people by email
+5. **Multiple orgs** - Users can belong to multiple organizations
+
+### Organization Roles
+
+| Role | Permissions |
+|------|-------------|
+| **Owner** | Full access, can delete org, transfer ownership |
+| **Admin** | Manage members, invites, groups, projects, boards |
+| **Member** | Access assigned groups, projects, boards |
+
+### Invitation Flow
+
+1. Org admin creates invite with email and role
+2. Invite link generated (valid for 7 days)
+3. Invitee receives notification (if already registered) or link
+4. Invitee accepts invite to join organization
+6. Rejected users see a message explaining why they were not approved
+
+## Permission Management
+
+Admins can assign granular permissions to users:
+
+| Permission | Description |
+|------------|-------------|
+| **Admin** | Full system access, can manage all users and settings |
+| **Can Create Groups** | User can create new groups (otherwise can only join existing) |
+| **Can Create Projects** | User can create projects in groups they admin |
+
+## Project Structure
+
+```
+collab-hub/
+├── app/
+│   ├── (app)/              # Protected app routes
+│   │   ├── admin/          # Admin pages (user management)
+│   │   ├── boards/         # JIRA-like boards
+│   │   ├── dashboard/      # Main dashboard
+│   │   ├── groups/         # Groups management
+│   │   ├── projects/       # Projects management
+│   │   └── settings/       # User settings
+│   ├── (auth)/             # Auth routes (login, register)
+│   ├── api/                # API routes
+│   │   ├── admin/          # Admin endpoints
+│   │   ├── auth/           # Authentication endpoints
+│   │   ├── boards/         # Board CRUD & tasks
+│   │   ├── credentials/    # Credential management
+│   │   ├── documents/      # Document CRUD
+│   │   ├── files/          # File upload/download
+│   │   ├── groups/         # Group CRUD
+│   │   ├── notifications/  # Notification endpoints
+│   │   ├── projects/       # Project CRUD
+│   │   └── users/          # User management
+│   ├── globals.css         # Global styles (glassmorphism theme)
+│   ├── layout.tsx          # Root layout
+│   └── page.tsx            # Landing page
+├── components/             # React components
+├── lib/
+│   ├── db/                 # Database schema and migrations
+│   ├── services/           # Storage services
+│   ├── auth.ts             # Auth utilities
+│   ├── encryption.ts       # Credential encryption
+│   ├── notifications.ts    # Notification helpers
+│   ├── session.ts          # Session management
+│   └── types.ts            # TypeScript types
+└── scripts/                # Database scripts
+```
 
 ## API Endpoints
 
 ### Authentication
 - `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login user
-- `POST /api/auth/logout` - Logout user
+- `POST /api/auth/login` - Login
+- `POST /api/auth/logout` - Logout
 - `GET /api/auth/me` - Get current user
-- `PUT /api/auth/me` - Update current user
+- `PUT /api/auth/me` - Update profile
 - `PUT /api/auth/me/password` - Change password
 
 ### Users
-- `GET /api/users/search?q=query` - Search users
-- `GET /api/users/:userId` - Get user by ID
+- `GET /api/users/search?q=` - Search users
+- `GET /api/users/[userId]` - Get user by ID
 
 ### Groups
 - `GET /api/groups` - List user's groups
 - `POST /api/groups` - Create group
-- `GET /api/groups/:groupId` - Get group details
-- `PUT /api/groups/:groupId` - Update group
-- `DELETE /api/groups/:groupId` - Delete group
-- `POST /api/groups/:groupId/members` - Add member
-- `PUT /api/groups/:groupId/members/:userId` - Update member role
-- `DELETE /api/groups/:groupId/members/:userId` - Remove member
+- `GET /api/groups/[groupId]` - Get group details
+- `PUT /api/groups/[groupId]` - Update group
+- `DELETE /api/groups/[groupId]` - Delete group
+- `POST /api/groups/[groupId]/members` - Add member
+- `PUT /api/groups/[groupId]/members/[userId]` - Update member role
+- `DELETE /api/groups/[groupId]/members/[userId]` - Remove member
 
 ### Projects
-- `GET /api/projects` - List user's projects
+- `GET /api/projects` - List accessible projects
 - `POST /api/projects` - Create project
-- `GET /api/projects/:projectId` - Get project details
-- `PUT /api/projects/:projectId` - Update project
-- `DELETE /api/projects/:projectId` - Delete project
-- `POST /api/projects/:projectId/groups` - Share with group
-- `PUT /api/projects/:projectId/groups/:groupId` - Update permission
-- `DELETE /api/projects/:projectId/groups/:groupId` - Remove group access
+- `GET /api/projects/[projectId]` - Get project details
+- `PUT /api/projects/[projectId]` - Update project
+- `DELETE /api/projects/[projectId]` - Delete project
+- `POST /api/projects/[projectId]/groups` - Share with group
+- `PUT /api/projects/[projectId]/groups/[groupId]` - Update permission
+- `DELETE /api/projects/[projectId]/groups/[groupId]` - Remove group access
 
 ### Documents
-- `GET /api/documents/project/:projectId` - List project documents
+- `GET /api/documents/project/[projectId]` - List project documents
 - `POST /api/documents` - Create document
-- `GET /api/documents/:documentId` - Get document
-- `PUT /api/documents/:documentId` - Update document
-- `DELETE /api/documents/:documentId` - Delete document
+- `GET /api/documents/[documentId]` - Get document
+- `PUT /api/documents/[documentId]` - Update document
+- `DELETE /api/documents/[documentId]` - Delete document
+- `POST /api/documents/reorder` - Reorder documents
 
 ### Credentials
-- `GET /api/credentials/project/:projectId` - List project credentials
+- `GET /api/credentials/project/[projectId]` - List project credentials
 - `POST /api/credentials` - Create credential
-- `GET /api/credentials/:credentialId/value` - Get decrypted value
-- `PUT /api/credentials/:credentialId` - Update credential
-- `DELETE /api/credentials/:credentialId` - Delete credential
+- `PUT /api/credentials/[credentialId]` - Update credential
+- `DELETE /api/credentials/[credentialId]` - Delete credential
+- `GET /api/credentials/[credentialId]/value` - Get decrypted value
 
 ### Files
-- `GET /api/files/project/:projectId` - List project files
+- `GET /api/files/project/[projectId]` - List project files
 - `POST /api/files/upload` - Upload file
-- `GET /api/files/:fileId/download` - Download file
-- `GET /api/files/:fileId/url` - Get download URL
-- `PUT /api/files/:fileId` - Update file
-- `DELETE /api/files/:fileId` - Delete file
+- `PUT /api/files/[fileId]` - Update file
+- `DELETE /api/files/[fileId]` - Delete file
+- `GET /api/files/[fileId]/download` - Download file
+- `GET /api/files/[fileId]/url` - Get signed URL
 - `POST /api/files/folders` - Create folder
-- `PUT /api/files/folders/:folderId` - Update folder
-- `DELETE /api/files/folders/:folderId` - Delete folder
+- `PUT /api/files/folders/[folderId]` - Update folder
+- `DELETE /api/files/folders/[folderId]` - Delete folder
 
-## Database Schema
+### Boards (JIRA-like Task Management)
+- `GET /api/boards` - List accessible boards
+- `POST /api/boards` - Create board
+- `GET /api/boards/[boardId]` - Get board with columns and tasks
+- `PUT /api/boards/[boardId]` - Update board
+- `DELETE /api/boards/[boardId]` - Delete board
+- `GET /api/boards/[boardId]/columns` - List columns
+- `POST /api/boards/[boardId]/columns` - Create column
+- `PUT /api/boards/[boardId]/columns` - Reorder columns
+- `PUT /api/boards/[boardId]/columns/[columnId]` - Update column
+- `DELETE /api/boards/[boardId]/columns/[columnId]` - Delete column
+- `POST /api/boards/[boardId]/groups` - Share board with group
+- `PUT /api/boards/[boardId]/groups/[groupId]` - Update group permission
+- `DELETE /api/boards/[boardId]/groups/[groupId]` - Remove group access
+- `GET /api/boards/[boardId]/sprints` - List sprints
+- `POST /api/boards/[boardId]/sprints` - Create sprint
+- `GET /api/boards/[boardId]/sprints/[sprintId]` - Get sprint with tasks
+- `PUT /api/boards/[boardId]/sprints/[sprintId]` - Update sprint (start, complete)
+- `DELETE /api/boards/[boardId]/sprints/[sprintId]` - Delete sprint
+- `GET /api/boards/[boardId]/tasks` - List tasks (filter by sprint, column, assignee)
+- `POST /api/boards/[boardId]/tasks` - Create task
+- `GET /api/boards/[boardId]/tasks/[taskId]` - Get task details
+- `PUT /api/boards/[boardId]/tasks/[taskId]` - Update task (move, assign, etc.)
+- `DELETE /api/boards/[boardId]/tasks/[taskId]` - Delete task
+- `GET /api/boards/[boardId]/tasks/[taskId]/comments` - List comments
+- `POST /api/boards/[boardId]/tasks/[taskId]/comments` - Add comment
+- `GET /api/boards/[boardId]/labels` - List labels
+- `POST /api/boards/[boardId]/labels` - Create label
+- `PUT /api/boards/[boardId]/labels/[labelId]` - Update label
+- `DELETE /api/boards/[boardId]/labels/[labelId]` - Delete label
 
-### Users
-- id, username, email, password_hash, display_name, avatar_url, created_at, updated_at
+### Admin User Management
+- `GET /api/admin/users` - List all users (filter by status)
+- `GET /api/admin/users/[userId]` - Get user details
+- `PUT /api/admin/users/[userId]` - Update user (approve, reject, permissions)
+- `DELETE /api/admin/users/[userId]` - Delete user
 
-### Groups
-- id, name, description, created_by, created_at, updated_at
+### Notifications
+- `GET /api/notifications` - Get user notifications
+- `POST /api/notifications` - Mark all read / clear all
+- `PUT /api/notifications/[notificationId]` - Mark as read
+- `DELETE /api/notifications/[notificationId]` - Delete notification
 
-### Group Members
-- id, group_id, user_id, role (admin|member), created_at
+## Permission Levels
 
-### Projects
-- id, name, description, status (active|archived|completed), created_by, created_at, updated_at
-
-### Project Groups
-- id, project_id, group_id, permission_level (read|write|admin), created_at
-
-### Documents
-- id, project_id, title, content, parent_id, sort_order, created_by, created_at, updated_at
-
-### Credentials
-- id, project_id, name, type, encrypted_value, encryption_iv, description, created_by, created_at, updated_at
-
-### Files
-- id, project_id, name, original_name, storage_key, mime_type, size, folder_id, created_by, created_at
-
-### Folders
-- id, project_id, name, parent_id, created_by, created_at
-
-## Storage Configuration
-
-### Local Storage (Development)
-By default, files are stored in the `uploads` directory. This is suitable for development and testing.
-
-### S3 Storage (Production)
-Set `STORAGE_TYPE=s3` in your environment and configure:
-- `S3_ENDPOINT` - S3 endpoint URL
-- `S3_REGION` - AWS region
-- `S3_ACCESS_KEY_ID` - Access key
-- `S3_SECRET_ACCESS_KEY` - Secret key
-- `S3_BUCKET` - Bucket name
-- `S3_FORCE_PATH_STYLE` - Use path-style URLs (for MinIO)
+Projects can be shared with groups at three levels:
+- **read**: View-only access to project content
+- **write**: Can create and edit content
+- **admin**: Full access including project settings and sharing
 
 ## Security
 
 - Passwords are hashed using bcrypt with 12 rounds
-- Credentials are encrypted using AES-256-GCM
-- Session-based authentication with HTTP-only cookies
-- Group-based access control for all resources
-
-## Development
-
-### Running in Development Mode
-
-```bash
-# Terminal 1 - Server
-cd server
-npm run dev
-
-# Terminal 2 - Client
-cd client
-npm run dev
-```
-
-### Building for Production
-
-```bash
-# Build client
-cd client
-npm run build
-
-# Build server
-cd server
-npm run build
-
-# Start production server
-npm start
-```
+- Session data is encrypted using iron-session
+- Credentials are encrypted using AES-256-CBC before storage
+- Each credential has a unique IV for additional security
 
 ## License
 
