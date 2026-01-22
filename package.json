@@ -3,15 +3,39 @@
   "version": "1.0.0",
   "description": "Collaborative project management tool",
   "private": true,
-  "workspaces": [
-    "client",
-    "server"
-  ],
   "scripts": {
-    "dev:server": "cd server && npm run dev",
-    "dev:client": "cd client && npm run dev",
-    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
-    "build": "cd client && npm run build && cd ../server && npm run build",
-    "setup": "cd server && npm run db:migrate"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:generate": "drizzle-kit generate:sqlite",
+    "db:push": "drizzle-kit push:sqlite",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "tsx scripts/seed-admin.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.474.0",
+    "@aws-sdk/lib-storage": "^3.474.0",
+    "@aws-sdk/s3-request-presigner": "^3.474.0",
+    "@libsql/client": "^0.4.3",
+    "bcryptjs": "^2.4.3",
+    "drizzle-orm": "^0.29.1",
+    "iron-session": "^8.0.1",
+    "lucide-react": "^0.294.0",
+    "next": "^14.0.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20.10.4",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.17",
+    "@types/uuid": "^9.0.7",
+    "drizzle-kit": "^0.20.6",
+    "tsx": "^4.6.2",
+    "typescript": "^5.3.3"
   }
 }
